@@ -61,7 +61,7 @@ sessions = {}
 @app.get("/botname", response_model=None)
 async def get_bot_name(authorization: Optional[str] = Header(None)):
     load_dotenv()
-    if os.getenv("ENVIRONMENT") == "production":
+    if os.getenv("ENVIRONMENT") == "production" and authorization:
         get_auth_key(authorization)
         
     sales_api = SalesGPTAPI(
@@ -94,7 +94,7 @@ async def chat_with_sales_agent(req: MessageList, stream: bool = Query(False), a
         Streaming functionality is planned but not yet available. The current implementation only supports synchronous responses.
     """
     sales_api = None
-    if os.getenv("ENVIRONMENT") == "production":
+    if os.getenv("ENVIRONMENT") == "production" and authorization:
         get_auth_key(authorization)
     # print(f"Received request: {req}")
     if req.session_id in sessions:
@@ -134,4 +134,5 @@ async def chat_with_sales_agent(req: MessageList, stream: bool = Query(False), a
 
 # Main entry point
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
