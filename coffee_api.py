@@ -6,6 +6,7 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, Query, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 # Load environment variables
@@ -106,25 +107,34 @@ def get_ai_response(user_message: str) -> str:
 
 @app.get("/")
 async def say_hello():
-    return {"message": "Premium Kahve Bot API is running!"}
+    return JSONResponse(
+        content={"message": "Premium Kahve Bot API is running!"},
+        media_type="application/json; charset=utf-8"
+    )
 
 @app.get("/botname")
 async def get_bot_name():
-    return {"name": "Kahve Uzmanı", "model": "Coffee Expert v1.0"}
+    return JSONResponse(
+        content={"name": "Kahve Uzmanı", "model": "Coffee Expert v1.0"},
+        media_type="application/json; charset=utf-8"
+    )
 
 @app.post("/chat")
 async def chat_with_sales_agent(req: MessageList):
     ai_response = get_ai_response(req.human_say)
     
-    return {
-        "bot_name": "Kahve Uzmanı",
-        "conversational_stage": "Information",
-        "response": ai_response,
-        "thinking_process": {
-            "conversationalStage": "Information",
-            "useTools": False
-        }
-    }
+    return JSONResponse(
+        content={
+            "bot_name": "Kahve Uzmanı",
+            "conversational_stage": "Information",
+            "response": ai_response,
+            "thinking_process": {
+                "conversationalStage": "Information",
+                "useTools": False
+            }
+        },
+        media_type="application/json; charset=utf-8"
+    )
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
